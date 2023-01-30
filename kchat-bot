@@ -1,0 +1,40 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types = 1);
+
+use ApiClients\Client\Pusher\AsyncClient;
+use ApiClients\Client\Pusher\Event;
+use React\EventLoop\Loop;
+
+require __DIR__ . '/vendor/autoload.php';
+
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+$dotenv->load();
+$dotenv->required('KCHAT_URL')->notEmpty();
+$dotenv->required('KCHAT_BOT_TOKEN')->notEmpty();
+$dotenv->required('KCHAT_TEAM_ID')->notEmpty();
+
+$loop   = Loop::get();
+$client = AsyncClient::create(
+    $loop,
+    'kchat-key',
+    host: 'websocket.kchat.infomaniak.com',
+    authEndpoint: rtrim($_ENV['KCHAT_URL'], '/') . '/broadcasting/auth',
+    authEndpointHeaders: ['Authorization: Bearer ' . $_ENV['KCHAT_BOT_TOKEN']],
+);
+$client->channel('private-team.' . $_ENV['KCHAT_TEAM_ID'])->subscribe(
+    function (Event $event) {
+        echo 'Channel: ', $event->getChannel(), PHP_EOL;
+        echo 'Event: ', $event->getEvent(), PHP_EOL;
+        echo 'Data: ', json_encode($event->getData()), PHP_EOL;
+    },
+    function (\Exception $e) {
+        echo $e->getMessage();
+    },
+    function () {
+        echo 'Done!', PHP_EOL;
+    }
+);
+
+$loop->run();

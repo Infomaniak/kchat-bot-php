@@ -1,0 +1,21 @@
+{
+  "minimum-stability": "stable",
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/L3o-pold/pusher.git"
+    },
+    {
+      "type": "vcs",
+      "url": "https://github.com/L3o-pold/RxWebsocket.git"
+    }
+  ],
+  "require": {
+    "php": "^8.2",
+    "ext-curl": "*",
+    "api-clients/pusher": "dev-patch-1",
+    "rx/websocket": "dev-patch-1 as 2.1.7",
+    "symfony/var-dumper": "^6",
+    "vlucas/phpdotenv": "^5.5"
+  }
+}
