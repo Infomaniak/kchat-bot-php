@@ -15,7 +15,9 @@
     "ext-curl": "*",
     "api-clients/pusher": "dev-patch-1",
     "rx/websocket": "dev-patch-1 as 2.1.7",
-    "symfony/var-dumper": "^6",
     "vlucas/phpdotenv": "^5.5"
+  },
+  "require-dev": {
+    "symfony/var-dumper": "^6"
   }
 }

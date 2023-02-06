@@ -11,18 +11,17 @@ require __DIR__ . '/vendor/autoload.php';
 
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 $dotenv->load();
-$dotenv->required('KCHAT_URL')->notEmpty();
-$dotenv->required('KCHAT_BOT_TOKEN')->notEmpty();
-$dotenv->required('KCHAT_TEAM_ID')->notEmpty();
+$dotenv->required(['KCHAT_URL', 'KCHAT_BOT_TOKEN', 'KCHAT_TEAMUSER_ID', 'KCHAT_TEAM_ID'])->notEmpty();
 
 $loop   = Loop::get();
 $client = AsyncClient::create(
     $loop,
     'kchat-key',
-    host: 'websocket.kchat.infomaniak.com',
+    host: $_ENV['KCHAT_WEBSOCKET_URL'] ?? 'websocket.kchat.infomaniak.com',
     authEndpoint: rtrim($_ENV['KCHAT_URL'], '/') . '/broadcasting/auth',
     authEndpointHeaders: ['Authorization: Bearer ' . $_ENV['KCHAT_BOT_TOKEN']],
 );
+
 $client->channel('private-team.' . $_ENV['KCHAT_TEAM_ID'])->subscribe(
     function (Event $event) {
         echo 'Channel: ', $event->getChannel(), PHP_EOL;
@@ -30,7 +29,21 @@ $client->channel('private-team.' . $_ENV['KCHAT_TEAM_ID'])->subscribe(
         echo 'Data: ', json_encode($event->getData()), PHP_EOL;
     },
     function (\Exception $e) {
-        echo $e->getMessage();
+        echo $e->getMessage() . PHP_EOL;
+    },
+    function () {
+        echo 'Done!', PHP_EOL;
+    }
+);
+
+$client->channel('presence-teamUser.' . $_ENV['KCHAT_TEAMUSER_ID'])->subscribe(
+    function (Event $event) {
+        echo 'Channel: ', $event->getChannel(), PHP_EOL;
+        echo 'Event: ', $event->getEvent(), PHP_EOL;
+        echo 'Data: ', json_encode($event->getData()), PHP_EOL;
+    },
+    function (\Exception $e) {
+        echo $e->getMessage() . PHP_EOL;
     },
     function () {
         echo 'Done!', PHP_EOL;
